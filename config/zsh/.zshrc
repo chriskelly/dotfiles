@@ -32,14 +32,63 @@ fi
 # If the antidote command is available, (re)build the plugin bundle when needed.
 if command -v antidote >/dev/null 2>&1; then
   if [ -f "$HOME/.zsh_plugins.txt" ]; then
-    if [ ! -f "$HOME/.zsh_plugins.zsh" ] || [ "$HOME/.zsh_plugins.txt" -nt "$HOME/.zsh_plugins.zsh" ]; then
+    local needs_regen=0
+    if [ ! -f "$HOME/.zsh_plugins.zsh" ]; then
+      needs_regen=1
+    elif [ "$HOME/.zsh_plugins.txt" -nt "$HOME/.zsh_plugins.zsh" ]; then
+      needs_regen=1
+    else
+      # Check if the bundle is just a stub (only comments) or has invalid paths
+      # This handles cases where the bundle was generated on macOS but is used in a devcontainer
+      if [ -f "$HOME/.zsh_plugins.zsh" ]; then
+        # First, check for old macOS-specific paths (quick check)
+        if grep -q "/Users/chris/Library/Caches/antidote" "$HOME/.zsh_plugins.zsh" 2>/dev/null; then
+          needs_regen=1
+        else
+          local has_source=0
+          local has_invalid=0
+          while IFS= read -r line; do
+            # Skip empty lines and comments
+            [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
+            # Check for source lines
+            if [[ "$line" =~ ^source[[:space:]]+(.+) ]]; then
+              has_source=1
+              local src_path="$match[1]"
+              # Remove any quotes around the path
+              src_path="${src_path%\"}"
+              src_path="${src_path#\"}"
+              if [ ! -f "$src_path" ]; then
+                has_invalid=1
+                break
+              fi
+            fi
+          done < "$HOME/.zsh_plugins.zsh"
+          # Regenerate if no source lines found (stub file) or if any paths are invalid
+          if [ "$has_source" -eq 0 ] || [ "$has_invalid" -eq 1 ]; then
+            needs_regen=1
+          fi
+        fi
+      fi
+    fi
+    if [ "$needs_regen" -eq 1 ]; then
       antidote bundle < "$HOME/.zsh_plugins.txt" > "$HOME/.zsh_plugins.zsh"
     fi
   fi
 fi
 
+# Only source the bundle if it exists and we're confident it's valid
+# (either it was just regenerated, or it passed all validation checks)
 if [ -f "$HOME/.zsh_plugins.zsh" ]; then
-  source "$HOME/.zsh_plugins.zsh"
+  # Quick validation: ensure it doesn't contain old macOS paths
+  if ! grep -q "/Users/chris/Library/Caches/antidote" "$HOME/.zsh_plugins.zsh" 2>/dev/null; then
+    source "$HOME/.zsh_plugins.zsh"
+  else
+    # If we somehow still have old paths, try to regenerate one more time
+    if command -v antidote >/dev/null 2>&1 && [ -f "$HOME/.zsh_plugins.txt" ]; then
+      antidote bundle < "$HOME/.zsh_plugins.txt" > "$HOME/.zsh_plugins.zsh"
+      source "$HOME/.zsh_plugins.zsh"
+    fi
+  fi
 fi
 
 ##### Prompt tweaks ###########################################################
