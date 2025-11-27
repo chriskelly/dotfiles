@@ -1,0 +1,48 @@
+#!/usr/bin/env zsh
+
+# macOS-specific Zsh configuration
+
+##### Prompt tweaks ###########################################################
+
+# Hide the username in the prompt on macOS, matching your previous setup.
+DEFAULT_USER prompt_context(){}
+
+##### Flutter and Dart CLIs ###################################################
+
+if [ -d "/Applications/flutter" ]; then
+  export PATH="$PATH:$HOME/.pub-cache/bin"
+  export PATH="$PATH:/Applications/flutter/bin"
+fi
+
+##### Android SDK #############################################################
+
+if [ -d "$HOME/Library/Android/sdk" ]; then
+  export PATH="$HOME/Library/Android/sdk/tools:$PATH"
+  export PATH="$HOME/Library/Android/sdk/platform-tools:$PATH"
+fi
+
+##### Ruby via Homebrew (Apple Silicon) #######################################
+
+if [ -d "/opt/homebrew/opt/ruby/bin" ]; then
+  export PATH=/opt/homebrew/opt/ruby/bin:$PATH
+  export PATH="$(gem environment gemdir)"/bin:$PATH
+fi
+
+##### Node Version Manager (nvm) ##############################################
+
+export NVM_DIR="$HOME/.nvm"
+if [ -d "$NVM_DIR" ]; then
+  export NVM_DIR="$NVM_DIR"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+  nvm use default >/dev/null 2>&1 || true
+fi
+
+##### Angular CLI autocompletion ##############################################
+
+if command -v ng >/dev/null 2>&1; then
+  # Load Angular CLI autocompletion.
+  source <(ng completion script)
+fi
+
+
