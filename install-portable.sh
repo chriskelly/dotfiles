@@ -150,6 +150,7 @@ main() {
   link_file "$REPO_DIR/config/zsh/.zshrc" "$HOME/.zshrc"
   link_file "$REPO_DIR/config/zsh/.zshenv" "$HOME/.zshenv"
   link_file "$REPO_DIR/config/zsh/.zsh_plugins.txt" "$HOME/.zsh_plugins.txt"
+  link_file "/history/.zsh_history" "$HOME/.zsh_history" # requires mount such as "source=${localWorkspaceFolder}/.devcontainer/history,target=/history,type=bind"
 
   log "Portable installation complete. Restart your shell or run: exec zsh"
 }
