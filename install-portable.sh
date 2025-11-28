@@ -83,6 +83,15 @@ ensure_core_tools() {
   done
 }
 
+install_powerline_fonts() {
+    #### in vscode settings for devcontainer (not for User or Workspace), Search for terminal.integrated.fontFamily value, and set it to "Roboto Mono for Powerline" (or any of those: https://github.com/powerline/fonts#font-families font families).
+    log "Installing powerline fonts for zsh agnoster theme..."
+    git clone https://github.com/powerline/fonts.git
+    cd fonts
+    ./install.sh
+    cd .. && rm -rf fonts
+}
+
 install_oh_my_zsh() {
   if [ -d "$HOME/.oh-my-zsh" ]; then
     log "Oh My Zsh already installed at $HOME/.oh-my-zsh"
@@ -104,6 +113,34 @@ install_oh_my_zsh() {
   fi
 }
 
+install_oh_my_zsh_in_docker() {
+    log "Installing Oh My Zsh in Docker"
+    # Backup existing zshrc if it exists
+    if [ -f "$HOME/.zshrc" ]; then
+        mv "$HOME/.zshrc" "$HOME/.zshrc.bak"
+        HAS_BACKUP=true
+    else
+        HAS_BACKUP=false
+    fi
+
+    # Install zsh-in-docker (use curl instead of wget, no sudo needed in devcontainer)
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/deluan/zsh-in-docker/master/zsh-in-docker.sh)" -- \
+        -t agnoster
+
+    # Restore saved zshrc if we had one, otherwise keep the new one
+    if [ "$HAS_BACKUP" = true ]; then
+        # Remove newly created zshrc
+        rm -f "$HOME/.zshrc"
+        # Restore saved zshrc
+        mv "$HOME/.zshrc.bak" "$HOME/.zshrc"
+    else
+        # If no backup existed, zsh-in-docker created a new .zshrc - just update the theme
+        if [ -f "$HOME/.zshrc" ]; then
+            sed -i '/^ZSH_THEME/c\ZSH_THEME="agnoster"' "$HOME/.zshrc"
+        fi
+    fi
+}
+
 install_antidote() {
   # Prefer a local clone under ~/.antidote for portability.
   if [ -d "$HOME/.antidote" ]; then
@@ -122,7 +159,12 @@ main() {
   log "Starting portable Zsh setup..."
 
   ensure_core_tools
-  install_oh_my_zsh
+  install_powerline_fonts
+  if [ "$OSTYPE" == "darwin" ]; then
+    install_oh_my_zsh
+    else
+    install_oh_my_zsh_in_docker
+  fi
   install_antidote
 
   # Symlink Zsh configuration files from this repo into $HOME.
