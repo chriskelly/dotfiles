@@ -8,7 +8,6 @@ reuse across environments (devcontainers, SSH sessions, and macOS).
 - `config/zsh/.zshrc`: portable interactive Zsh config.
 - `config/zsh/.zshenv`: placeholder for environment-only variables (currently minimal).
 - `config/zsh/.zsh_plugins.txt`: Antidote plugin list (source of truth).
-- `config/zsh/.zsh_plugins.zsh`: Antidote-generated plugin bundle (checked in as a fallback).
 - `config/zsh/.zshrc.mac`: macOS-specific additions (Flutter, Android SDK, Ruby, nvm, Angular).
 - `install-portable.sh`: portable installer for Zsh + Oh My Zsh + Antidote + symlinks.
 - `install-mac.sh`: macOS installer that reuses the portable installer and adds mac-only config.
@@ -34,7 +33,6 @@ What it does:
   - `~/.zshrc`
   - `~/.zshenv`
   - `~/.zsh_plugins.txt`
-  - `~/.zsh_plugins.zsh`
 - Backs up any existing files as `.<name>.backup-YYYYMMDD-HHMMSS`.
 
 It does **not** install heavy language runtimes or SDKs.

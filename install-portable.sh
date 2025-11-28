@@ -171,7 +171,6 @@ main() {
   link_file "$REPO_DIR/config/zsh/.zshrc" "$HOME/.zshrc"
   link_file "$REPO_DIR/config/zsh/.zshenv" "$HOME/.zshenv"
   link_file "$REPO_DIR/config/zsh/.zsh_plugins.txt" "$HOME/.zsh_plugins.txt"
-  link_file "$REPO_DIR/config/zsh/.zsh_plugins.zsh" "$HOME/.zsh_plugins.zsh"
 
   log "Portable installation complete. Restart your shell or run: exec zsh"
 }
