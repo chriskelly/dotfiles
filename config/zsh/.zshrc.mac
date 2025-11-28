@@ -2,11 +2,6 @@
 
 # macOS-specific Zsh configuration
 
-##### Prompt tweaks ###########################################################
-
-# Hide the username in the prompt on macOS, matching your previous setup.
-DEFAULT_USER prompt_context(){}
-
 ##### Flutter and Dart CLIs ###################################################
 
 if [ -d "/Applications/flutter" ]; then
@@ -22,6 +17,7 @@ if [ -d "$HOME/Library/Android/sdk" ]; then
 fi
 
 ##### Ruby via Homebrew (Apple Silicon) #######################################
+# Set the Homebrew-installed Ruby to take priority over the system Ruby	
 
 if [ -d "/opt/homebrew/opt/ruby/bin" ]; then
   export PATH=/opt/homebrew/opt/ruby/bin:$PATH
@@ -29,13 +25,14 @@ if [ -d "/opt/homebrew/opt/ruby/bin" ]; then
 fi
 
 ##### Node Version Manager (nvm) ##############################################
+# https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating
 
 export NVM_DIR="$HOME/.nvm"
 if [ -d "$NVM_DIR" ]; then
   export NVM_DIR="$NVM_DIR"
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-  nvm use default >/dev/null 2>&1 || true
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion (node is in path)
+  nvm use default >/dev/null 2>&1 || true # Ensures the default node version is used
 fi
 
 ##### Angular CLI autocompletion ##############################################

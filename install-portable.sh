@@ -31,6 +31,10 @@ link_file() {
   if [ "$(readlink "$dest" 2>/dev/null)" = "$src" ]; then
     return
   fi
+  if [ ! -e "$src" ]; then
+    log "Error: Source file $src does not exist. Skipping symlink creation for $dest"
+    return 1
+  fi
   backup_file "$dest"
   ln -s "$src" "$dest"
   log "Linked $dest -> $src"

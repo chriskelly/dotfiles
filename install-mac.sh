@@ -27,6 +27,10 @@ link_file() {
   if [ "$(readlink "$dest" 2>/dev/null)" = "$src" ]; then
     return
   fi
+  if [ ! -e "$src" ]; then
+    log "Error: Source file $src does not exist. Skipping symlink creation for $dest"
+    return 1
+  fi
   backup_file "$dest"
   ln -s "$src" "$dest"
   log "Linked $dest -> $src"
@@ -39,7 +43,7 @@ main() {
   fi
 
   log "Running portable installer first..."
-  "$REPO_DIR/install-portable.sh"
+  bash "$REPO_DIR/install-portable.sh"
 
   log "Linking macOS-specific Zsh configuration..."
   link_file "$REPO_DIR/config/zsh/.zshrc.mac" "$HOME/.zshrc.mac"

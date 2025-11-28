@@ -24,8 +24,10 @@ compinit
 
 ##### Antidote plugin manager #################################################
 
-# Prefer a local Antidote clone in the home directory.
-if [ -f "$HOME/.antidote/antidote.zsh" ]; then
+# Try Homebrew installation first (macOS), then fall back to local clone (portable)
+if [ -f "/opt/homebrew/opt/antidote/share/antidote/antidote.zsh" ]; then
+  source "/opt/homebrew/opt/antidote/share/antidote/antidote.zsh"
+elif [ -f "$HOME/.antidote/antidote.zsh" ]; then
   source "$HOME/.antidote/antidote.zsh"
 fi
 
