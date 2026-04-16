@@ -139,10 +139,13 @@ main() {
 
   ensure_core_tools
   install_powerline_fonts
-  if [ "$OSTYPE" == "darwin" ]; then
+  if [[ "$OSTYPE" == darwin* ]]; then
     install_oh_my_zsh
-    else
+  elif [[ "$OSTYPE" == linux* ]]; then
     install_oh_my_zsh_in_docker
+  else
+    log "Unsupported or unknown OS (OSTYPE=${OSTYPE:-empty}). This script supports macOS and Linux only."
+    exit 1
   fi
   install_antidote
 
@@ -150,10 +153,22 @@ main() {
   link_file "$REPO_DIR/config/zsh/.zshrc" "$HOME/.zshrc"
   link_file "$REPO_DIR/config/zsh/.zshenv" "$HOME/.zshenv"
   link_file "$REPO_DIR/config/zsh/.zsh_plugins.txt" "$HOME/.zsh_plugins.txt"
-  link_file "/history/.zsh_history" "$HOME/.zsh_history" # requires mount such as "source=${localWorkspaceFolder}/.devcontainer/history,target=/history,type=bind"
+
+  # Optional: persisted history when using a devcontainer bind mount, or the same path in the repo on the host.
+  # Example mount: source=${localWorkspaceFolder}/.devcontainer/history,target=/history,type=bind
+  history_src=""
+  if [ -e "/history/.zsh_history" ]; then
+    history_src="/history/.zsh_history"
+  elif [ -e "$REPO_DIR/.devcontainer/history/.zsh_history" ]; then
+    history_src="$REPO_DIR/.devcontainer/history/.zsh_history"
+  fi
+  if [ -n "$history_src" ]; then
+    link_file "$history_src" "$HOME/.zsh_history"
+  else
+    log "No shared zsh history file found (expected /history/.zsh_history in a devcontainer or $REPO_DIR/.devcontainer/history/.zsh_history); leaving $HOME/.zsh_history as-is."
+  fi
 
   log "Portable installation complete. Restart your shell or run: exec zsh"
 }
 
 main "$@"
-
